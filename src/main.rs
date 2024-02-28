@@ -9,7 +9,7 @@ use grammers_client::{
     Client, Config, InitParams, SignInError, Update,
 };
 use grammers_session::Session;
-use log::{error, info};
+use log::{error, info, warn};
 use moka::future::Cache;
 
 pub type ApiId = i32;
@@ -100,20 +100,34 @@ impl Bot {
     }
 
     pub async fn handle_message(&self, message: &Message) -> anyhow::Result<()> {
-        //message.reply("").await?;
         if matches!(message.chat(), Chat::User(_)) {
-            info!(
-                "Got a PM from user {} with id {}",
-                message.sender().unwrap().name(),
-                message.sender().unwrap().id()
-            );
+            if message.sender().is_some() {
+                info!(
+                    "Got a PM from user {} with id {}",
+                    message.sender().unwrap().name(),
+                    message.sender().unwrap().id()
+                );
+            } else {
+                warn!(
+                    "Got a PM message but sender is unknown (chat id {})",
+                    message.chat().id()
+                )
+            }
         } else {
-            info!(
-                "Got a message from chat '{}' with id {} from userid {}",
-                message.chat().name(),
-                message.chat().id(),
-                message.sender().unwrap().id()
-            );
+            if message.sender().is_some() {
+                info!(
+                    "Got a message from chat '{}' with id {} from userid {}",
+                    message.chat().name(),
+                    message.chat().id(),
+                    message.sender().unwrap().id()
+                );
+            } else {
+                warn!(
+                    "Got a message from chat '{}' with id {} but sender is unknown",
+                    message.chat().name(),
+                    message.chat().id()
+                )
+            }
             if !message.mentioned() {
                 return Ok(());
             }
