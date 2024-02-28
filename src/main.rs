@@ -37,7 +37,6 @@ impl Bot {
             api_hash,
             params: InitParams {
                 catch_up: true,
-                update_queue_limit: Some(2_000),
                 ..Default::default()
             },
         })
