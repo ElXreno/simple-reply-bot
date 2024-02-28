@@ -1,5 +1,6 @@
 use std::{
     io::{self, BufRead, Write},
+    matches,
     time::Duration,
 };
 
@@ -113,7 +114,7 @@ impl Bot {
                     message.chat().id()
                 )
             }
-        } else {
+        } else if matches!(message.chat(), Chat::Group(_)) {
             if message.sender().is_some() {
                 info!(
                     "Got a message from chat '{}' with id {} from userid {}",
@@ -131,6 +132,8 @@ impl Bot {
             if !message.mentioned() {
                 return Ok(());
             }
+        } else {
+            return Ok(());
         }
 
         if !self.replied_chat_cache.contains_key(&message.chat().id()) {
